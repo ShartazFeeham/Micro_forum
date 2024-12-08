@@ -31,16 +31,20 @@ services:
   elasticsearch_for_logs:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.3
     container_name: elasticsearch
-    environment:
-      - bootstrap.memory_lock=true  # Enables memory locking for performance and stability.
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # Configures the JVM heap size for Elasticsearch.
-      - "discovery.type=single-node"  # Configures Elasticsearch to run in single-node mode.
-      - xpack.security.enabled=false  # Disables the security features of X-Pack for Elasticsearch.
-      - xpack.monitoring.elasticsearch.ssl.verification_mode=none
     ports:
       - "9200:9200"
-    volumes: # Mounts a volume to persist Elasticsearch data.
-      - elasticsearch_data:/usr/share/elasticsearch/data  # Mounts the named volume for data persistence.
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./logs/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+      - discovery.type=single-node
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - cluster.name=elasticsearch
+      - bootstrap.memory_lock=true
     networks:
       - elastic
 
@@ -62,7 +66,8 @@ services:
     container_name: logstash
     volumes: # Mounts volumes for configuration and pipeline data.
       - ./logs/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro  # Mounts the configuration file in read-only mode.
-      - ./logs/pipeline:/usr/share/logstash/pipeline:ro  # Mounts the pipeline directory in read-only mode.
+      - ./logs/config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ls_data:/usr/share/logstash/data
     ports: # Maps host ports to container ports for Logstash.
       - "5044:5044"  # Maps port 5044 for Beats input.
       - "5000:5000/tcp"  # Maps port 5000 for TCP input.
@@ -99,3 +104,4 @@ volumes: # Defines named volumes for data persistence.
     driver: local  # Specifies the local driver for volume storage.
   post-service-pg-db_local_data:
   pgadmin-data:
+  ls_data:
