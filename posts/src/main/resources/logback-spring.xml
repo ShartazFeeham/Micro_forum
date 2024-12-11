@@ -38,12 +38,14 @@
                 <pattern>
                     <pattern>
                         {
-                            "application": "${springAppName}",
-                            "level": "%level",
-                            "message": "%message",
-                            "timestamp": "%date{ISO8601}",
-                            "logger": "%logger",
-                            "thread": "%thread"
+                        "application": "${springAppName}",
+                        "level": "%level",
+                        "message": "%message",
+                        "timestamp": "%date{ISO8601}",
+                        "logger": "%logger",
+                        "thread": "%thread",
+                        "traceId": "%mdc{X-B3-TraceId}",
+                        "spanId": "%mdc{X-B3-SpanId}"
                         }
                     </pattern>
                 </pattern>
@@ -51,6 +53,7 @@
                 </arguments>
                 <mdc>
                     <includeMdcKeyName>traceId</includeMdcKeyName>
+                    <includeMdcKeyName>spanId</includeMdcKeyName>
                 </mdc>
             </providers>
         </encoder>

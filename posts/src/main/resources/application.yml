@@ -10,3 +10,19 @@ spring:
   # Default active profile
   profiles:
     default: "dev"
+# Logging configuration
+logging:
+  level:
+    com:
+      microforum:
+        posts: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+      sampling:
+        probability: 1.0
+
